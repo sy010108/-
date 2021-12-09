@@ -1,0 +1,775 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h> 
+
+typedef struct
+{
+	char b_name[30];
+	char b_number[30];
+	char auther[30];
+	int b_empty;
+
+} Book;
+
+typedef struct
+{
+	char name[20];
+	char number[30];
+	char address[30];
+	char list[30];
+	int empty;
+} Client;
+
+FILE* fp;
+Book* bp, * bp1;
+Client* cp, * cp1;
+
+int i, num;
+char yes_no;
+char tmp_number[5];
+int is_client(char number[5]);
+
+void intro();
+void main_menu();
+void client_menu();
+void book_menu();
+void give_take_menu();
+void give_take();
+void c_insert();
+void insert();
+void c_search();
+void search();
+void c_delete();
+void delete();
+void c_update();
+void update();
+void give();
+void take();
+
+
+main()
+{
+	intro();
+	while (1)
+	{
+		main_menu();
+	}
+}
+
+void intro()
+{
+
+	system("cls");
+	printf("\n\n\n\t\t--------------------------------------------------\n");
+	printf("\t\t\t\n");
+	printf("\t\t\t\n");
+	printf("\n\t\t\t프로그램명 : 도서관리 프로그램\n");
+	printf("\t\t\t\n");
+	printf("\t\t\t\n");
+	printf("\t\t--------------------------------------------------\n");
+	printf("\n\n\t\t\t아무키나 누르세요");
+	getchar();
+}
+
+
+
+void main_menu()
+{
+	system("cls");
+	fflush(stdin);
+	printf("\n\n\n\n");
+	printf("\t\t\t------------------------------------\n");
+	printf("\t\t\t1.회원관리\n");
+	printf("\t\t\t2.책관리\n");
+	printf("\t\t\t3.대여관리\n");
+	printf("\t\t\t4.종료\n");
+	printf("\t\t\t------------------------------------\n");
+	printf("\t\t\t원하는 번호를 선택하세요:");
+	scanf("%d", &num);
+	switch (num)
+	{
+	case 1: client_menu();
+		break;
+	case 2: book_menu();
+		break;
+	case 3: give_take_menu();
+		break;
+	case 4: exit(1);
+		break;
+	default: printf("\t\t\t잘못선택하였습니다!!!\n");
+		main_menu();
+	}
+}
+
+
+
+void client_menu()
+{
+
+	system("cls");
+	fflush(stdin);
+
+	printf("\n\n\n\n");
+	printf("\t\t\t------------------------------------\n");
+
+	printf("\t\t\t1.회원 등록하기\n");
+	printf("\t\t\t2.회원 찾기\n");
+	printf("\t\t\t3.회원 삭제 \n");
+	printf("\t\t\t4.회원 수정\n");
+	printf("\t\t\t5.메인메뉴로....\n");
+	printf("\t\t\t------------------------------------\n\n");
+	printf("\t\t\t원하는 번호를 선택하세요:");
+	
+	scanf("%d", &num);
+
+	switch (num)
+	{
+	case 1: c_insert(); 
+		break;
+	case 2: c_search();
+		break;
+	case 3: c_delete();
+		break;
+	case 4: c_update();
+		break;
+	case 5: main_menu();
+		break;
+	default: printf("잘못선택하였습니다!!!\n");
+		
+		client_menu();
+	}
+}
+
+
+void c_insert()
+{
+	
+	cp = (Client*)calloc(1, sizeof(Client));
+	cp1 = (Client*)calloc(1, sizeof(Client));
+
+	
+	system("cls");
+
+	fflush(stdin);
+
+	printf("\n\n\n\t\t회원 이름 :");
+	gets(cp->name);
+	printf("\n\t\t회원 번호 :");
+	gets(cp->number);
+	printf("\n\t\t회원 주소 :");
+	gets(cp->address);
+	cp->empty = 1;
+	fp = fopen("user_data.txt", "a+");
+	printf("\t\t등록되었습니다.\n");
+	printf("\t\t아무키나 누르세요");
+	getchar();
+	rewind(fp);
+
+	 
+	while (fread(cp1, sizeof(Client), 1, fp) != NULL)
+	{
+		i = ftell(fp);
+		if (cp1->empty == 0)
+		{
+			fclose(fp);
+			fp = fopen("c_data.txt", "r+");  
+			
+			fseek(fp, i - sizeof(Client), SEEK_SET);
+			fwrite(cp, sizeof(Client), 1, fp);
+			fclose(fp);
+			return;
+		}
+	}
+	fclose(fp);
+	fp = fopen("c_data.txt", "a+"); 
+	fwrite(cp, sizeof(Client), 1, fp);
+	fclose(fp);
+}
+
+
+void c_search()
+{
+
+	system("cls");
+	fflush(stdin);
+
+	printf("\n\n\n\t\t회원 번호를 입력하세요:");
+	gets(tmp_number);
+	fp = fopen("c_data.txt", "r");
+	
+	cp = (Client*)calloc(1, sizeof(Client));
+
+	
+	while (fread(cp, sizeof(Client), 1, fp) != NULL)
+	{
+		if (strcmp(cp->number, tmp_number) == 0) 
+		{
+			if (cp->empty == 0)
+				break;
+			printf("\n\t\t--------------------------------------\n");
+			printf("\t\t회원을 찾았습니다~~~~~~~~!");
+			printf("\n\t\t--------------------------------------\n");
+			printf("\t\t회원 이름 : %s\n", cp->name);
+			printf("\t\t회원 번호 : %s\n", cp->number);
+			printf("\t\t회원 주소 : %s", cp->address);
+			printf("\n\t\t--------------------------------------\n");
+			fclose(fp);
+			printf("\t\t아무키나 누르세요");
+			getchar();
+			return;
+		}
+	}
+	fclose(fp);
+	printf("\n\t\t%s회원은 없는 회원입니다........ !\n", tmp_number);
+	printf("\n\t\t아무키나 누르세요");
+	getchar();
+}
+
+
+void c_delete()
+{
+	char yes_no;
+	
+	system("cls");
+	fflush(stdin);
+
+	
+	printf("\n\n\n");
+	printf("\t\t\t회원 번호를 입력하세요 :");
+	gets(tmp_number);
+	fp = fopen("c_data.txt", "r+");
+	cp = (Client*)calloc(1, sizeof(Client));
+
+	 
+	while (fread(cp, sizeof(Client), 1, fp) != NULL)
+	{
+		i = ftell(fp);
+		if (strcmp(cp->number, tmp_number) == 0) 
+		{
+			if (cp->empty == 0)
+				break;
+			printf("\n\t\t----------------------------------\n");
+			printf("\t\t회원을 찾았습니다~~~~!");
+			printf("\n\t\t----------------------------------\n");
+			printf("\t\t회원 이름 : %s\n", cp->name);
+			printf("\t\t회원 번호 : %s\n", cp->number);
+			printf("\t\t회원 주소 : %s", cp->address);
+			printf("\n\t\t----------------------------------\n");
+			printf("\t\t아무키나 누르세요");
+			getchar();
+			fclose(fp);
+
+			
+			printf("\t\t회원을 삭제하겠습니까?(y/n)");
+			scanf("%c", &yes_no);
+
+			if (yes_no == 'y')
+			{
+				fp = fopen("c_data.txt", "r+");
+				
+				fseek(fp, i - sizeof(Client), SEEK_SET);
+				cp->empty = 0;
+				fwrite(cp, sizeof(Client), 1, fp);
+				fclose(fp);
+			}
+			return;
+		}
+	}
+
+	fclose(fp);
+	
+	printf("\n\n\t\t%s회원은 없는 회원입니다......", tmp_number);
+	printf("\t\t아무키나 누르세요");
+	getchar();
+}
+
+void c_update()
+{
+	
+	system("cls");
+	fflush(stdin);
+
+	printf("\n\n\n\t\t회원 번호를 입력하세요 :");
+	gets(tmp_number);
+
+	fp = fopen("c_data.txt", "r+");
+	cp = (Client*)calloc(1, sizeof(Client));
+
+	
+	while (fread(cp, sizeof(Client), 1, fp) != NULL)
+	{
+		i = ftell(fp);
+		if (strcmp(cp->number, tmp_number) == 0)
+
+			if (cp->empty == 0)
+				break;
+			printf("\n\t\t-------------------------------------\n");
+			printf("\t\t회원을 찾았습니다!");
+			printf("\n\t\t-------------------------------------\n");
+			printf("\t\t회원 이름 : %s\n", cp->name);
+			printf("\t\t회원 번호 : %s\n", cp->number);
+			printf("\t\t회원 주소 : %s", cp->address);
+			printf("\n\t\t-------------------------------------\n");
+			printf("\t\t아무키나 누르세요");
+			getchar();
+			{
+				int a;
+				
+				printf("\n\t\t---------------------------------------------");
+				printf("\n\t\t수정할 항목을 선택하세요\n");
+				printf("\t\t----------------------------------------------\n");
+				printf("\t\t1.회원 이름 \t2.회원 번호 \t3.회원 주소 ");
+				printf("\n\t\t---------------------------------------------\n");
+
+				scanf("\t\t\t%d", &a);
+				fflush(stdin);
+				switch (a)
+				{
+				case  1:
+					printf("\n\t\t새로운 회원 이름을 입력하세요 :");
+					gets(cp->name);
+					printf("\t\t수정되었습니다.");
+					break;
+				case  2:
+					printf("\n\t새로운 회원 번호를 입력하세요 :");
+					gets(cp->number);
+					printf("\t\t수정되었습니다.");
+					break;
+				case 3:
+					printf("\n\t새로운 회원 주소를 입력하세요 :");
+					gets(cp->address);
+					printf("\t\t수정되었습니다.");
+					break;
+				}
+
+			}
+
+			fclose(fp);
+			fp = fopen("c_data.txt", "r+"); 
+			
+			fseek(fp, i - sizeof(Client), 0);
+			fwrite(cp, sizeof(Client), 1, fp);
+			fclose(fp);
+			printf("\n\t\t아무키나 누르세요");
+			getchar();
+			return;
+		}
+	}
+	fclose(fp);
+	printf("\n\n\t\t%s회원은 없는 회원입니다......", tmp_number);
+	printf("\n\t\t아무키나 누르세요");
+	getchar();
+}
+
+
+
+
+void book_menu()
+{
+	
+	system("cls");
+	fflush(stdin);
+	printf("\n\n\n\n");
+	printf("\t\t\t------------------------------------\n");
+	printf("\t\t\t1.책등록하기\n");
+	printf("\t\t\t2.책찾기\n");
+	printf("\t\t\t3.책지우기\n");
+	printf("\t\t\t4.책수정\n");
+	printf("\t\t\t5.메인메뉴\n");
+	printf("\t\t\t------------------------------------\n");
+	printf("\t\t\t원하는 번호를 선택하세요:");
+	scanf("%d", &num); 
+	switch (num)
+	{
+	case 1: insert(); 
+		break;  
+	case 2: search();
+		break;
+	case 3: delete();
+		break;
+	case 4: update();
+		break;
+	case 5: main_menu();
+		break;
+	default: printf("잘못선택하였습니다!!!\n"); 
+		book_menu(); 
+	}
+}
+
+
+
+void insert()
+{
+	
+	bp = (Book*)calloc(1, sizeof(Book));
+	bp1 = (Book*)calloc(1, sizeof(Book));
+	system("cls");
+	fflush(stdin);
+	printf("\n\n\n\t\t\t책제목 :");
+	gets(bp->b_name); 
+	printf("\n\t\t\t책번호 :");
+	gets(bp->b_number); 
+	printf("\n\t\t\t책저자 :");
+	gets(bp->auther); 
+	bp->b_empty = 1; 
+	fp = fopen("data.txt", "a+"); 
+	rewind(fp); 
+
+	
+	while (fread(bp1, sizeof(Book), 1, fp) != NULL)
+	{
+		i = ftell(fp); 
+		if (bp1->b_empty == 0) 
+		{
+			fclose(fp); 
+			fp = fopen("data.txt", "r+"); 
+			fseek(fp, i - sizeof(Book), 0);
+			fwrite(bp, sizeof(Book), 1, fp); 
+			fclose(fp);
+			return;
+		}
+	}
+	fclose(fp);
+	fp = fopen("data.txt", "a+");
+	fwrite(bp, sizeof(Book), 1, fp);
+	fclose(fp); 
+}
+
+
+
+void search()
+{
+	system("cls");
+	fflush(stdin);
+	printf("\n\n\n\t\t\t책번호를 입력하세요:");
+	gets(tmp_number); 
+	fp = fopen("data.txt", "r");
+	bp = (Book*)calloc(1, sizeof(Book));
+
+	
+	while (fread(bp, sizeof(Book), 1, fp) != NULL)
+	{
+		if (strcmp(bp->b_number, tmp_number) == 0) 
+		{
+			if (bp->b_empty == 0)
+				break;
+			printf("\t\t\t찾았습니다!\n");
+			printf("\t\t\t책제목 : %s\n", bp->b_name);
+			printf("\t\t\t책번호 : %s\n", bp->b_number);
+			printf("\t\t\t책저자 : %s\n", bp->auther);
+			fclose(fp);
+			printf("\t\t\t아무키나 누르세요");
+			getchar();
+			return;
+		}
+	}
+	fclose(fp);
+	printf("\t\t\t찾지 못하였습니다!!\n");
+	printf("\t\t\t아무키나 누르세요");
+	getchar();
+}
+
+
+
+void delete()
+{
+	system("cls");
+	fflush(stdin);
+	printf("\n\n\n\t\t\t책번호를 입력하세요 :");
+	gets(tmp_number);
+	fp = fopen("data.txt", "r+");
+	bp = (Book*)calloc(1, sizeof(Book));
+	while (fread(bp, sizeof(Book), 1, fp) != NULL)
+	{
+		i = ftell(fp);
+		if (strcmp(bp->b_number, tmp_number) == 0)
+		{
+			if (bp->b_empty == 0)
+				break;
+			printf("\t\t\t찾았습니다!\n");
+			printf("\t\t\t책제목 : %s\n", bp->b_name);
+			printf("\t\t\t책번호 : %s\n", bp->b_number);
+			printf("\t\t\t책저자 : %s\n", bp->auther);
+			printf("\t\t\t아무키나 누르세요");
+			getchar();
+			fclose(fp);
+			printf("\n\t\t\t삭제하겠습니까?(y/n)"); 
+			scanf("%c", &yes_no);
+			if (yes_no == 'y')
+			{
+				fp = fopen("data.txt", "r+");
+				fseek(fp, i - sizeof(Book), 0);
+				bp->b_empty = 0;
+				fwrite(bp, sizeof(Book), 1, fp);
+				fclose(fp);
+			}
+			return;
+		}
+	}
+	fclose(fp);
+	printf("\t\t\t찾지못하였습니다");
+	printf("\t\t\t아무키나 누르세요");
+	getchar();
+}
+
+
+void update()
+{
+	system("cls");
+	fflush(stdin);
+	printf("\n\n\n\t\t\t책번호를 입력하세요 :");
+	gets(tmp_number); 
+	fp = fopen("data.txt", "r+");
+	bp = (Book*)calloc(1, sizeof(Book));
+	while (fread(bp, sizeof(Book), 1, fp) != NULL)
+	{
+		i = ftell(fp);
+		if (strcmp(bp->b_number, tmp_number) == 0)
+		{
+			if (bp->b_empty == 0)
+				break;
+			printf("\t\t\t찾았습니다!\n");
+			printf("\t\t\t책제목 : %s\n", bp->b_name);
+			printf("\t\t\t책번호 : %s\n", bp->b_number);
+			printf("\t\t\t책저자 : %s\n", bp->auther);
+			printf("\t\t\t아무키나 누르세요");
+			getchar();
+			{
+				int a;
+				printf("\n\t\t\t---------------------------------------------");
+				printf("\n\t\t\t수정할 항목을 선택하세요\n");
+				printf("\t\t\t----------------------------------------------\n");
+				printf("\t\t\t1.책 제목\t2.책 번호 \t3.책 저자");
+				printf("\n\t\t\t---------------------------------------------\n");
+
+				scanf("\t\t\t%d", &a);
+				fflush(stdin);
+				switch (a)
+				{
+				case  1:
+					printf("\n\t\t새로운 책제목을 입력하세요 :");
+					gets(bp->b_name);
+					printf("\t\t수정되었습니다.");
+					break;
+				case  2:
+					printf("\n\t새로운 책번호를 입력하세요 :");
+					gets(bp->b_number);
+					printf("\t\t수정되었습니다.");
+					break;
+				case 3:
+					printf("\n\t새로운 책저자를 입력하세요 :");
+					gets(bp->auther);
+					printf("\t\t수정되었습니다.");
+					break;
+				}
+
+			}
+
+			fclose(fp);
+			fp = fopen("data.txt", "r+");
+			fseek(fp, i - sizeof(Book), 0);
+			fwrite(bp, sizeof(Book), 1, fp);
+			fclose(fp);
+			printf("\n\t\t아무키나 누르세요");
+			getchar();
+			return;
+		}
+	}
+	fclose(fp);
+	printf("\t\t\t찾지못하였습니다\n");
+	printf("\t\t\t아무키나 누르세요");
+	getchar();
+}
+
+
+
+
+void give_take_menu()
+{
+	int j;
+	system("cls");
+	fflush(stdin);
+	printf("\n\n\n\t\t------------------------");
+	printf("\n\t\t1.대여\n\t\t2.반납\n\t\t3.메인메뉴\n");
+	printf("\t\t--------------------------");
+	printf("\n\t\t입력하세요 : ");
+	scanf("%d", &j);
+	switch (j)
+	{
+	case 1:
+		give_take();
+		break;
+	case 2:
+		take();
+		break;
+	case 3:
+		main_menu();
+		break;
+	}
+}
+void give_take()
+{
+	int j;
+	system("cls");		
+	fflush(stdin);		
+	printf("\n\n\n\t\t\t회원번호를 입력하세요 : ");
+	gets(tmp_number);		
+	j = is_client(tmp_number);		
+	if (j == 0)		
+	{
+		printf("\n\t\t\t회원이 아닙니다...확인후 다시 시도해주세요");
+		printf("\t\t\t아무키나 누르세요");
+		getchar();
+		return;		
+	}
+	if (j == 1)
+	{
+		int j;
+		fp = fopen("c_data.txt", "r+");		
+		cp = (Client*)calloc(1, sizeof(Client));		
+		while (fread(cp, sizeof(Client), 1, fp) != NULL)		
+		{
+			i = ftell(fp);		
+			if (strcmp(cp->number, tmp_number) == 0)		
+			{
+				if (cp->empty == 0)		
+					break;
+				printf("\n\t\t찾았습니다!\n");
+				printf("\t\t회원이름 : %s\n", cp->name);
+				printf("\t\t회원번호 : %s\n", cp->number);
+				printf("\t\t주소 : %s\n", cp->address);
+				printf("\t\t대여책 : %s\n", cp->list);
+				printf("\t\t대여하시려면 아무키나 누르세요\n");
+				getchar();		
+
+				give();
+
+				fclose(fp);		
+				fp = fopen("c_data.txt", "r+");		
+				fseek(fp, i - sizeof(Client), 0);		
+				fwrite(cp, sizeof(Client), 1, fp);			
+				fclose(fp);
+				return;
+			}
+		}
+		fclose(fp);		
+		printf("\t\t찾지못하였습니다\n");
+
+		printf("\n\t\t아무키나 누르세요");
+		getchar();
+	}
+
+}
+
+int is_client(char tmp_number[5])
+{
+	system("cls");
+	fflush(stdin);
+	fp = fopen("c_data.txt", "r");		
+	bp = (Client*)calloc(1, sizeof(Client));					
+	while (fread(cp, sizeof(Client), 1, fp) != NULL)		
+	{
+		if (strcmp(cp->number, tmp_number) == 0)		
+		{
+			if (cp->empty == 0)		
+				break;
+			fclose(fp);		
+			return 1;		
+		}
+	}
+	fclose(fp);
+	return 0;		
+}
+void give()
+{
+	fflush(stdin);
+	printf("\t\t대여책 번호를 입력해주세요:");
+	gets(tmp_number); 
+	fp = fopen("data.txt", "r");
+	bp = (Book*)calloc(1, sizeof(Book));
+
+	
+	while (fread(bp, sizeof(Book), 1, fp) != NULL)
+	{
+		if (strcmp(bp->b_number, tmp_number) == 0) 
+		{
+			if (bp->b_empty == 0)
+				break;
+			printf("\t\t찾았습니다!\n");
+			printf("\t\t책제목 : %s\n", bp->b_name);
+			printf("\t\t책번호 : %s\n", bp->b_number);
+			printf("\t\t책저자 : %s\n", bp->auther);
+
+			fclose(fp);
+			printf("\n\t\t대여하시겠습니까?(y/n)");
+			scanf("%c", &yes_no);
+			if (yes_no == 'y')
+			{
+				fp = fopen("c_data.txt", "r+");
+				strcpy(cp->list, tmp_number);
+
+				fclose(fp);
+			}
+			printf("\n\t\t대여가 되었습니다\n");
+			printf("\t\t아무키나 누르세요");
+			getchar();
+			return;
+		}
+	}
+	fclose(fp);
+	printf("\t\t\t찾지 못하였습니다!!\n");
+	printf("\t\t\t아무키나 누르세요");
+	getchar();
+}
+void take()
+{
+	int j;
+	system("cls");		
+	fflush(stdin);		
+	printf("\n\n\n\t\t\t회원번호를 입력하세요 : ");
+	gets(tmp_number);		
+	j = is_client(tmp_number);		
+	if (j == 0)		
+	{
+		printf("\n\t\t\t회원이 아닙니다...확인후 다시 시도해주세요");
+		printf("\t\t\t아무키나 누르세요");
+		getchar();
+		return;		
+	}
+	if (j == 1)
+	{
+		int j;
+		fp = fopen("c_data.txt", "r+");		
+		cp = (Client*)calloc(1, sizeof(Client));		
+		while (fread(cp, sizeof(Client), 1, fp) != NULL)
+		{
+			i = ftell(fp);		
+			if (strcmp(cp->number, tmp_number) == 0)		
+			{
+				if (cp->empty == 0)		
+					break;
+				printf("\n\t\t찾았습니다!\n");
+				printf("\t\t회원이름 : %s\n", cp->name);
+				printf("\t\t회원번호 : %s\n", cp->number);
+				printf("\t\t회원주소 : %s\n", cp->address);
+				printf("\t\t대여책 : %s\n", cp->list);
+				printf("\t\t반납을 위해 아무거나 누르세요\n");
+				getchar();		
+				printf("\t\t반납하시려면 그냥 enter를 치세요\n");
+				gets(cp->list);
+				fclose(fp);		
+				fp = fopen("c_data.txt", "r+");		
+				fseek(fp, i - sizeof(Client), 0);		
+				fwrite(cp, sizeof(Client), 1, fp);				
+				fclose(fp);
+				return;
+			}
+		}
+		fclose(fp);		
+		printf("\t\t찾지못하였습니다\n");
+
+		printf("\n\t\t아무키나 누르세요");
+		getchar();
+	}
+
+}
